@@ -19,6 +19,7 @@ export default class Eat extends Command {
 
     //
     // Deconstruct the return Message into its bakedGood and icing components
+    //
     let {bakedGood, icing} = returnMessage 
 
     if ( icing ) {

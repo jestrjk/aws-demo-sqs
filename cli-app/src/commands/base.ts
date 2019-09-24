@@ -38,25 +38,32 @@ export default abstract class extends Command {
   // RECEIVE-ING MESSAGES
   //
   async receiveMessage( ){
-    
+
+    //
+    // Receive the message
+    // 
     let results = await this.sqs.receiveMessage( {
       QueueUrl: this.queueInfo.QueueUrl,
       MessageAttributeNames: [ 'icing' ]
     }).promise()
-    
+    //
+    // Catch any errors
+    //
     .catch( (err:any) => {
       this.error( err )
     })
-
-    
-
+        
     if ( ! results.Messages ) { 
       return undefined
     }
 
-    let bakedGoodMessage =  results.Messages.reduce( (acc:any, cur:any ) => { return cur },  )
+    
+    let bakedGoodMessage =  results.Messages.reduce( (acc:any, cur:any ) => { return cur }, 'Nothing!'  )
     //this.log ( bakedGoodMessage ) 
 
+    //
+    // We received the message, everything is going fine, let's delete it.
+    //
     this.sqs.deleteMessage( {
       QueueUrl: this.queueInfo.QueueUrl,
       ReceiptHandle: bakedGoodMessage.ReceiptHandle
@@ -66,15 +73,19 @@ export default abstract class extends Command {
       this.error( err ) 
     })
 
-    let withValue:any = undefined
+    //
+    // Assemble our return value and return it!
+    //
+
+    let icingValue:any = undefined
     
     if ( bakedGoodMessage.MessageAttributes && bakedGoodMessage.MessageAttributes.icing ) {
-      withValue = bakedGoodMessage.MessageAttributes.icing.StringValue
+      icingValue = bakedGoodMessage.MessageAttributes.icing.StringValue
     }
 
     let returnValue = {
       bakedGood: bakedGoodMessage.Body, 
-      icing: withValue 
+      icing: icingValue 
     }
     
     //this.log( `With: ${withValue}` )
