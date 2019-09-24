@@ -1,47 +1,53 @@
-import {Command, flags} from '@oclif/command'
-const sdk = require('aws-sdk')
+import Command from './base'
+const chalk = require( 'chalk' )
 
 export default class Hello extends Command {
-  static description = 'describe the command here'
+  static description = 'Tests the various connectivity needed'
 
-  static examples = [
-    `$ cli-app hello
-hello world from ./src/hello.ts!
-`,
-  ]
+  static examples = [``]
 
   static flags = {
-    help: flags.help({char: 'h'}),
+    // help: flags.help({char: 'h'}),
     // flag with a value (-n, --name=VALUE)
-    name: flags.string({char: 'n', description: 'name to print'}),
-    // flag with no value (-f, --force)
-    force: flags.boolean({char: 'f'}),
   }
 
-  static args = [{name: 'file'}]
+  static args = [/*{name: 'file'}*/]
 
   async run() {
-    sdk.config.getCredentials((err:any) => {
-      if (err) console.log( err ) 
-      else {
-        console.log( `aws-sdk: credentials retrieved` )
-      }
-    })
-    sdk.config.update({region: 'us-east-1'});
+        
+    let sqsName = await this.getSqsName()
 
-    let ssm = new sdk.SSM()
+    this.log( chalk.cyan( `SQS Queue Name:` ) )
+    this.log( sqsName )
 
+    let sqsQueueInfo = await this.getSqsQueue( sqsName.Parameter.Value )
+
+    this.log( chalk.cyan( `SQS Queue:` ))
+    this.log( sqsQueueInfo )
+
+    const {args, flags} = this.parse(Hello)
+
+    this.log(`Hello from ./src/commands/hello.ts`)
+  }
+
+  async getSqsName() {
+    let ssm = new this.sdk.SSM()
+    
     let sqsName = await ssm.getParameter({
       Name: '/bpimb/aws-demo-sqs/sqs/name'
     }).promise()
 
-
-    const {args, flags} = this.parse(Hello)
-
-    const name = flags.name || 'world'
-    this.log(`hello ${name} from ./src/commands/hello.ts`)
-    if (args.file && flags.force) {
-      this.log(`you input --force and --file: ${args.file}`)
-    }
+    return sqsName
   }
+
+  async getSqsQueue( queueName : string) {
+    let sqs = new this.sdk.SQS()
+    
+    let sqsInfo = await sqs.getQueueUrl({
+      QueueName: queueName
+    }).promise()
+
+    return sqsInfo
+  }
+
 }

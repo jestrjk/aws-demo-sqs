@@ -28,25 +28,29 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`cli-app hello [FILE]`](#cli-app-hello-file)
+* [`cli-app base`](#cli-app-base)
+* [`cli-app hello`](#cli-app-hello)
 * [`cli-app help [COMMAND]`](#cli-app-help-command)
+* [`cli-app whoami [FILE]`](#cli-app-whoami-file)
 
-## `cli-app hello [FILE]`
-
-describe the command here
+## `cli-app base`
 
 ```
 USAGE
-  $ cli-app hello [FILE]
+  $ cli-app base
+```
 
-OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
+_See code: [src/commands/base.ts](https://github.com/jestrjk/aws-demo-sqs/blob/v0.0.0/src/commands/base.ts)_
+
+## `cli-app hello`
+
+Tests the various connectivity needed
+
+```
+USAGE
+  $ cli-app hello
 
 EXAMPLE
-  $ cli-app hello
-  hello world from ./src/hello.ts!
 ```
 
 _See code: [src/commands/hello.ts](https://github.com/jestrjk/aws-demo-sqs/blob/v0.0.0/src/commands/hello.ts)_
@@ -67,4 +71,20 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.1/src/commands/help.ts)_
+
+## `cli-app whoami [FILE]`
+
+describe the command here
+
+```
+USAGE
+  $ cli-app whoami [FILE]
+
+OPTIONS
+  -f, --force
+  -h, --help       show CLI help
+  -n, --name=name  name to print
+```
+
+_See code: [src/commands/whoami.ts](https://github.com/jestrjk/aws-demo-sqs/blob/v0.0.0/src/commands/whoami.ts)_
 <!-- commandsstop -->
