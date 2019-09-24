@@ -1,14 +1,24 @@
 import {Command, flags} from '@oclif/command'
 
+import { args } from '@oclif/parser'
+
 export default abstract class extends Command {
+  
+  static args = []
+  static flags = {}
+  
+  static hidden = true 
 
   sdk: any
   sqs: any
-  ssmParameterName = '/bpimb/aws-demo-sqs/sqs/name'
-  queue: any
   queueInfo: any
+  ssmParameterQueueName = '/bpimb/aws-demo-sqs/sqs/queueName'
   queueName: string = ''
   
+ 
+  //
+  // SEND-ING MESSAGES
+  //
   async sendMessage( message: string, messageAttributes: any = {}) {
 
     await this.sqs.sendMessage( {
@@ -22,33 +32,56 @@ export default abstract class extends Command {
     })
   }
 
+  // ---
+
+  //
+  // RECEIVE-ING MESSAGES
+  //
   async receiveMessage( ){
     
     let results = await this.sqs.receiveMessage( {
-      QueueUrl: this.queueInfo.QueueUrl
+      QueueUrl: this.queueInfo.QueueUrl,
+      MessageAttributeNames: [ 'icing' ]
     }).promise()
     
     .catch( (err:any) => {
       this.error( err )
     })
 
+    
+
     if ( ! results.Messages ) { 
       return undefined
     }
-    
-    let bakedGood =  results.Messages.reduce( (acc:any, cur:any ) => { return cur } )
+
+    let bakedGoodMessage =  results.Messages.reduce( (acc:any, cur:any ) => { return cur },  )
+    //this.log ( bakedGoodMessage ) 
 
     this.sqs.deleteMessage( {
       QueueUrl: this.queueInfo.QueueUrl,
-      ReceiptHandle: bakedGood.ReceiptHandle
+      ReceiptHandle: bakedGoodMessage.ReceiptHandle
     }).promise()
 
     .catch ( (err:any ) => {
       this.error( err ) 
     })
 
-    return bakedGood.Body
+    let withValue:any = undefined
+    
+    if ( bakedGoodMessage.MessageAttributes && bakedGoodMessage.MessageAttributes.icing ) {
+      withValue = bakedGoodMessage.MessageAttributes.icing.StringValue
+    }
+
+    let returnValue = {
+      bakedGood: bakedGoodMessage.Body, 
+      icing: withValue 
+    }
+    
+    //this.log( `With: ${withValue}` )
+    return returnValue
   }
+ 
+  // ---
 
   async init() {
     await this.initSdk()
@@ -76,7 +109,7 @@ export default abstract class extends Command {
     let ssm = new this.sdk.SSM()
     
     let sqsName = await ssm.getParameter({
-      Name: this.ssmParameterName 
+      Name: this.ssmParameterQueueName 
     }).promise()
 
     return sqsName.Parameter.Value

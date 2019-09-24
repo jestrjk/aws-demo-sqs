@@ -47,6 +47,9 @@
   "oclif": {
     "commands": "./lib/commands",
     "bin": "cli-app",
+    "topics": {
+      "bake": { "description": "Bakes a tasty pie or cake for you and sends it to an SQS message queue!" }
+    },
     "plugins": [
       "@oclif/plugin-help"
     ]

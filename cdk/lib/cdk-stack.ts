@@ -10,14 +10,9 @@ export class AwsDemoSqsStack extends cdk.Stack {
     let queue = new sqs.Queue( this, 'aws-demo-sqs')
 
     new ssm.StringParameter( this, "aws-demo-ssm-queueName", {
-      parameterName: "/bpimb/aws-demo-sqs/sqs/name",
+      parameterName: "/bpimb/aws-demo-sqs/sqs/queueName",
       stringValue: queue.queueName
     })
-
-    new ssm.StringParameter( this, "aws-demo-ssm-queueArn", {
-      parameterName: "/bpimb/aws-demo-sqs/sqs/arn",
-      stringValue: queue.queueArn
-    })
-
+    
   }
 }
