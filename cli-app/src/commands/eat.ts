@@ -9,24 +9,23 @@ export default class Eat extends Command {
 
     let returnMessage = await this.receiveMessage()
 
+    //
+    // Nothing in the queue!
+    //
     if ( !returnMessage ) {
       this.log( `Nothing to eat. ;( So Sad.`)
       return
     }
 
+    //
+    // Deconstruct the return Message into its bakedGood and icing components
     let {bakedGood, icing} = returnMessage 
 
-    if ( bakedGood ) {
-      if ( icing ) {
-        this.log( `I have eaten ${bakedGood} with ${icing} icing!`)  
-      }
-      else {
-        this.log( `I have eaten ${bakedGood}!`)
-      }
+    if ( icing ) {
+      this.log( `I have eaten ${bakedGood} with ${icing} icing!`)  
     }
     else {
-      
+      this.log( `I have eaten ${bakedGood}!`)
     }
-    
   }
 }
