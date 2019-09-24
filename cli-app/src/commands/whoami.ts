@@ -1,25 +1,21 @@
-import {Command, flags} from '@oclif/command'
+import Command from './base'
 
 export default class Whoami extends Command {
-  static description = 'describe the command here'
+  static description = 'shows who the user is, as determined by IAM.getUser'
 
   static flags = {
-    help: flags.help({char: 'h'}),
-    // flag with a value (-n, --name=VALUE)
-    name: flags.string({char: 'n', description: 'name to print'}),
-    // flag with no value (-f, --force)
-    force: flags.boolean({char: 'f'}),
+    
   }
 
-  static args = [{name: 'file'}]
+  static args = []
 
   async run() {
     const {args, flags} = this.parse(Whoami)
 
-    const name = flags.name || 'world'
-    this.log(`hello ${name} from /home/jjester/github/jestrjk/aws-demo-sqs/cli-app/src/commands/whoami.ts`)
-    if (args.file && flags.force) {
-      this.log(`you input --force and --file: ${args.file}`)
-    }
+    const iam = new this.sdk.IAM()
+    const user =  await iam.getUser().promise()
+
+    this.log ( user.User.Arn )
+
   }
 }
