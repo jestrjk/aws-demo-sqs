@@ -3,6 +3,7 @@ import Command from '../base'
 
 export default class BakePie extends Command {
   
+  static hidden = false
   static description = 'No you FOOL! Pie is the best!'
 
   async run() {

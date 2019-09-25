@@ -4,7 +4,8 @@ import cli from 'cli-ux'
 import Base from '../base'
 
 export default class BakeCake extends Base {
-  
+
+  static hidden = false 
   static description = 'Cake is the best!'
 
   static flags = {

@@ -2,6 +2,7 @@ import Command from './base'
 
 export default class Eat extends Command {
   
+  static hidden = false
   static description = 'Try and find a delicious treat from the message queue to eat!'
   
   async run() {
