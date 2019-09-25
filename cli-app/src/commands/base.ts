@@ -1,4 +1,5 @@
 import {Command, flags} from '@oclif/command'
+import cli from 'cli-ux'
 
 import { args } from '@oclif/parser'
 
@@ -11,10 +12,10 @@ export default abstract class extends Command {
 
   sdk: any
   sqs: any
-  queueInfo: any
-  ssmParameterQueueName = '/bpimb/aws-demo-sqs/sqs/queueName'
-  queueName: string = ''
-  
+  inputQueueUrlParamName = '/bpimb/aws-demo-sqs/sqs/inputQueue/url'
+  outputQueueUrlParamName = '/bpimb/aws-demo-sqs/sqs/outputQueue/url'
+  inputQueueUrl: any
+  outputQueueUrl: any
  
   //
   // SEND-ING MESSAGES
@@ -23,10 +24,13 @@ export default abstract class extends Command {
 
     await this.sqs.sendMessage( {
       MessageBody: message,
-      QueueUrl: this.queueInfo.QueueUrl,
+      QueueUrl: this.inputQueueUrl,
       MessageAttributes: messageAttributes
     }).promise()
-
+    
+    .then( (data:any) => {
+      this.log( data ) 
+    })
     .catch( (err:any) => {
       this.error( err ) 
     })
@@ -43,7 +47,7 @@ export default abstract class extends Command {
     // Receive the message
     // 
     let results = await this.sqs.receiveMessage( {
-      QueueUrl: this.queueInfo.QueueUrl,
+      QueueUrl: this.outputQueueUrl,
       MessageAttributeNames: [ 'icing' ]
     }).promise()
     //
@@ -65,7 +69,7 @@ export default abstract class extends Command {
     // We received the message, everything is going fine, let's delete it.
     //
     this.sqs.deleteMessage( {
-      QueueUrl: this.queueInfo.QueueUrl,
+      QueueUrl: this.outputQueueUrl,
       ReceiptHandle: bakedGoodMessage.ReceiptHandle
     }).promise()
 
@@ -96,34 +100,22 @@ export default abstract class extends Command {
 
   async init() {
     await this.initSdk()
-    this.queueName = await this.getSqsQueueName()
-    await this.initSqsQueue(this.queueName)
+    this.sqs = new this.sdk.SQS()
+
+    this.inputQueueUrl = await this.getSSMParameter( this.inputQueueUrlParamName )
+    this.outputQueueUrl = await this.getSSMParameter( this.outputQueueUrlParamName )
 
     this.sqs = new this.sdk.SQS()
   }
 
-  async initSqsQueue( queueName : string) {
-    let sqs = new this.sdk.SQS()
-    //this.log( `Init: SQS Queue: ${queueName}`)
-
-    this.queueInfo = await sqs.getQueueUrl({
-      QueueName: queueName
-    }).promise()
-
-    //this.log( this.queueInfo  )
-
-    this.sqs = new this.sdk.SQS()
-    return this.sqs
-  }
-
-  async getSqsQueueName() {
+  async getSSMParameter( paramName:string ) {
     let ssm = new this.sdk.SSM()
     
-    let sqsName = await ssm.getParameter({
-      Name: this.ssmParameterQueueName 
+    let param = await ssm.getParameter({
+      Name: paramName 
     }).promise()
 
-    return sqsName.Parameter.Value
+    return param.Parameter.Value
   }
 
   
