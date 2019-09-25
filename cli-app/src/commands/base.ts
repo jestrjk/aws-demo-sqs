@@ -29,7 +29,7 @@ export default abstract class extends Command {
     }).promise()
     
     .then( (data:any) => {
-      this.log( data ) 
+      //this.log( data ) 
     })
     .catch( (err:any) => {
       this.error( err ) 
